@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""
+Simple HTTP server to serve the frontend files.
+Run this script to start the frontend on http://localhost:3000
+
+Usage:
+    python serve.py
+"""
+
+import http.server
+import socketserver
+import os
+
+# Configuration
+PORT = 3000
+DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+
+class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=DIRECTORY, **kwargs)
+    
+    def end_headers(self):
+        # Add CORS headers
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        super().end_headers()
+
+if __name__ == '__main__':
+    os.chdir(DIRECTORY)
+    
+    with socketserver.TCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
+        print(f"╔════════════════════════════════════════════╗")
+        print(f"║   Frontend Server Running                 ║")
+        print(f"╠════════════════════════════════════════════╣")
+        print(f"║   URL: http://localhost:{PORT}            ║")
+        print(f"║   Press Ctrl+C to stop                     ║")
+        print(f"╚════════════════════════════════════════════╝")
+        print()
+        print("Make sure the backend is running on http://localhost:8000")
+        print()
+        
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\nServer stopped.")
