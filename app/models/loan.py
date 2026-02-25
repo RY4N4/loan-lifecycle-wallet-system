@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, ForeignKey, Numeric, String, Enum as SQLEnum, DateTime
+from sqlalchemy import Column, Integer, ForeignKey, Numeric, String, Enum as SQLEnum, DateTime, func
 from sqlalchemy.orm import relationship
 from app.database import Base
-from datetime import datetime
 import enum
 
 
@@ -23,8 +22,8 @@ class Loan(Base):
     interest_rate = Column(Numeric(5, 2), nullable=False)  # Annual interest rate
     status = Column(SQLEnum(LoanStatus), default=LoanStatus.APPLIED, nullable=False)
     outstanding_amount = Column(Numeric(15, 2), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
     user = relationship("User", back_populates="loans")

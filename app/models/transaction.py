@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, ForeignKey, Numeric, String, Enum as SQLEnum, DateTime
+from sqlalchemy import Column, Integer, ForeignKey, Numeric, String, Enum as SQLEnum, DateTime, func
 from sqlalchemy.orm import relationship
 from app.database import Base
-from datetime import datetime
 import enum
 
 
@@ -31,7 +30,7 @@ class Transaction(Base):
     source = Column(SQLEnum(TransactionSource), nullable=False)
     reference_id = Column(String, index=True)  # loan_id or repayment_id
     description = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, server_default=func.now(), index=True)
 
     # Relationships
     user = relationship("User", back_populates="transactions")

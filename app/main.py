@@ -1,8 +1,19 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import init_db
+from app.database import init_db, get_settings
 from app.routers import auth_router, loan_router, wallet_router, repayment_router
+
+settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize database on startup"""
+    init_db()
+    yield
+
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -10,7 +21,8 @@ app = FastAPI(
     description="Production-grade fintech lending system with wallet, loans, and repayments",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -28,14 +40,12 @@ app.add_middleware(
 async def global_exception_handler(request: Request, exc: Exception):
     """
     Global exception handler for unhandled errors
-    
-    In production, this would log to monitoring service
     """
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "detail": "Internal server error",
-            "error": str(exc) if app.debug else "An error occurred"
+            "error": "An error occurred"
         }
     )
 
@@ -45,16 +55,6 @@ app.include_router(auth_router)
 app.include_router(loan_router)
 app.include_router(wallet_router)
 app.include_router(repayment_router)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """
-    Initialize database on startup
-    
-    In production, use Alembic migrations instead
-    """
-    init_db()
 
 
 @app.get("/")

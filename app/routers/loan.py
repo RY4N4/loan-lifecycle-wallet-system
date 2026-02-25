@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.loan import (
     LoanCreate, 
     LoanResponse, 
@@ -60,7 +60,7 @@ def get_loan_details(
     loan = LoanService.get_loan_by_id(db, loan_id)
     
     # Users can only see their own loans
-    if loan.user_id != current_user.id and current_user.role != "ADMIN":
+    if loan.user_id != current_user.id and current_user.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to view this loan"

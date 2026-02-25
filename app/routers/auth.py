@@ -6,6 +6,7 @@ from app.models.user import User
 from app.models.wallet import Wallet
 from app.schemas.user import UserCreate, UserLogin, UserResponse, TokenResponse
 from app.auth import create_access_token, verify_password, get_password_hash
+from app.auth.dependencies import get_current_user
 from datetime import timedelta
 from app.database import get_settings
 
@@ -47,7 +48,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 
     # Generate token
     access_token = create_access_token(
-        data={"sub": user.id, "role": user.role},
+        data={"sub": str(user.id), "role": user.role.value},
         expires_delta=timedelta(minutes=settings.access_token_expire_minutes)
     )
 
@@ -79,7 +80,7 @@ def login(
 
     # Generate token
     access_token = create_access_token(
-        data={"sub": user.id, "role": user.role},
+        data={"sub": str(user.id), "role": user.role.value},
         expires_delta=timedelta(minutes=settings.access_token_expire_minutes)
     )
 
@@ -96,7 +97,3 @@ def get_current_user_info(
 ):
     """Get current user information"""
     return UserResponse.model_validate(current_user)
-
-
-# Import at bottom to avoid circular dependency
-from app.auth.dependencies import get_current_user

@@ -1,13 +1,17 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+import os
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Settings(BaseSettings):
-    database_url: str
-    secret_key: str
+    database_url: str = "sqlite:///./loan_app.db"
+    secret_key: str = "change-me-in-production"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
@@ -33,8 +37,6 @@ engine = create_engine(
     pool_pre_ping=True  # Verify connections before using
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
 
 
 def get_db():

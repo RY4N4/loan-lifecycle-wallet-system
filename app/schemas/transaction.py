@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from decimal import Decimal
 from datetime import datetime
+from typing import Optional
 from app.models.transaction import TransactionType, TransactionSource
 
 
@@ -10,8 +11,8 @@ class TransactionResponse(BaseModel):
     amount: Decimal
     type: TransactionType
     source: TransactionSource
-    reference_id: str
-    description: str
+    reference_id: Optional[str] = None
+    description: Optional[str] = None
     created_at: datetime
 
     class Config:

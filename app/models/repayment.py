@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, ForeignKey, Numeric, Enum as SQLEnum, DateTime, String
+from sqlalchemy import Column, Integer, ForeignKey, Numeric, Enum as SQLEnum, DateTime, String, func
 from sqlalchemy.orm import relationship
 from app.database import Base
-from datetime import datetime
 import enum
 
 
@@ -25,7 +24,7 @@ class Repayment(Base):
     type = Column(SQLEnum(RepaymentType), nullable=False)
     status = Column(SQLEnum(RepaymentStatus), default=RepaymentStatus.PENDING, nullable=False)
     idempotency_key = Column(String, unique=True, index=True)  # Prevent duplicate payments
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, server_default=func.now())
 
     # Relationships
     loan = relationship("Loan", back_populates="repayments")

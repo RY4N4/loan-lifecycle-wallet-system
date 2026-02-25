@@ -1,5 +1,7 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:8000' 
+    : '';  // Same origin in production
 
 // State Management
 let currentUser = null;
@@ -41,13 +43,20 @@ function formatDate(dateString) {
 }
 
 // Tab Switching
-function switchTab(tab) {
+function switchTab(tab, evt) {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const tabButtons = document.querySelectorAll('.tab-button');
 
     tabButtons.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    if (evt && evt.target) {
+        evt.target.classList.add('active');
+    } else {
+        // Fallback: highlight the correct tab button
+        tabButtons.forEach(btn => {
+            if (btn.textContent.toLowerCase().includes(tab)) btn.classList.add('active');
+        });
+    }
 
     if (tab === 'login') {
         loginForm.style.display = 'block';
@@ -58,14 +67,21 @@ function switchTab(tab) {
     }
 }
 
-function switchDashboardTab(tab) {
+function switchDashboardTab(tab, evt) {
     const tabs = document.querySelectorAll('.tab-content');
     const navTabs = document.querySelectorAll('.nav-tab');
 
     tabs.forEach(t => t.classList.remove('active'));
     navTabs.forEach(t => t.classList.remove('active'));
 
-    event.target.classList.add('active');
+    if (evt && evt.target) {
+        evt.target.classList.add('active');
+    } else {
+        // Fallback: highlight correct nav tab
+        navTabs.forEach(t => {
+            if (t.textContent.toLowerCase().includes(tab === 'apply' ? 'apply' : tab)) t.classList.add('active');
+        });
+    }
 
     if (tab === 'loans') {
         document.getElementById('loansTab').classList.add('active');
@@ -338,7 +354,7 @@ async function handleLoanApplication(event) {
         }
 
         showToast('Loan application submitted successfully!', 'success');
-        switchDashboardTab('loans');
+        switchDashboardTab('loans', null);
         event.target.reset();
     } catch (error) {
         showToast(error.message || 'Application failed', 'error');
@@ -576,7 +592,21 @@ window.addEventListener('DOMContentLoaded', () => {
     if (savedToken && savedUser) {
         authToken = savedToken;
         currentUser = JSON.parse(savedUser);
-        showDashboard();
+        
+        // Validate token is still valid by calling /api/auth/me
+        fetch(`${API_BASE_URL}/api/auth/me`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        }).then(response => {
+            if (response.ok) {
+                showDashboard();
+            } else {
+                // Token expired or invalid — clear and show login
+                handleLogout();
+            }
+        }).catch(() => {
+            // Network error — show login
+            handleLogout();
+        });
     }
 });
 

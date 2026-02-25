@@ -19,8 +19,8 @@
             <p class="subtitle">Secure Lending Platform</p>
             
             <div class="tab-container">
-                <button class="tab-button active" onclick="switchTab('login')">Login</button>
-                <button class="tab-button" onclick="switchTab('register')">Register</button>
+                <button class="tab-button active" onclick="switchTab('login', event)">Login</button>
+                <button class="tab-button" onclick="switchTab('register', event)">Register</button>
             </div>
 
             <!-- Login Form -->
@@ -95,10 +95,10 @@
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchDashboardTab('loans')">My Loans</button>
-            <button class="nav-tab" onclick="switchDashboardTab('apply')">Apply for Loan</button>
-            <button class="nav-tab" onclick="switchDashboardTab('transactions')">Transactions</button>
-            <button id="adminTab" class="nav-tab" onclick="switchDashboardTab('admin')" style="display: none;">Admin Panel</button>
+            <button class="nav-tab active" onclick="switchDashboardTab('loans', event)">My Loans</button>
+            <button class="nav-tab" onclick="switchDashboardTab('apply', event)">Apply for Loan</button>
+            <button class="nav-tab" onclick="switchDashboardTab('transactions', event)">Transactions</button>
+            <button id="adminTab" class="nav-tab" onclick="switchDashboardTab('admin', event)" style="display: none;">Admin Panel</button>
         </div>
 
         <!-- My Loans Tab -->
